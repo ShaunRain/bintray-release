@@ -5,15 +5,15 @@ import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.component.SoftwareComponent
 import org.gradle.api.tasks.javadoc.Javadoc
-import org.gradle.util.GradleVersion
 
 class AndroidAttachments extends MavenPublicationAttachments {
     private static final String ANDROID_SOFTWARE_COMPONENT_COMPAT_5_3 = 'com.novoda.gradle.release.AndroidSoftwareComponentCompat_Gradle_5_3'
 
-    AndroidAttachments(String publicationName, Project project, def variant) {
+    AndroidAttachments(String publicationName, Project project, def variant, boolean customAAR) {
         super(androidComponentFrom(project),
                 androidSourcesJarTask(project, publicationName, variant),
-                androidJavadocsJarTask(project, publicationName, variant))
+                androidJavadocsJarTask(project, publicationName, variant),
+                androidArchivePath(variant, customAAR))
     }
 
     private static SoftwareComponent androidComponentFrom(Project project) {
@@ -34,8 +34,9 @@ class AndroidAttachments extends MavenPublicationAttachments {
         return javadocsJarTask(project, publicationName, javadoc)
     }
 
-    private static def androidArchivePath(def variant) {
+    private static def androidArchivePath(def variant, boolean customAAR) {
+        println("androidArchivePath: ${customAAR}")
         println("androidArchivePath: ${variant.outputs[0].packageLibrary}")
-        return variant.outputs[0].packageLibrary
+        return customAAR ? null : variant.outputs[0].packageLibrary
     }
 }

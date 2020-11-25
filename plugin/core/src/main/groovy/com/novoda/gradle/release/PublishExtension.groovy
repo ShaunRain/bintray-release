@@ -44,6 +44,8 @@ class PublishExtension {
 
     String aarPath = ''
 
+    String builderName = ''
+
     String[] publications
 
     /**

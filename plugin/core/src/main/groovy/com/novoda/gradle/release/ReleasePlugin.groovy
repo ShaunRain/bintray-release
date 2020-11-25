@@ -20,7 +20,25 @@ class ReleasePlugin implements Plugin<Project> {
             new BintrayConfiguration(extension).configure(project)
         }
         project.apply([plugin: 'maven-publish'])
-        new BintrayPlugin().apply(project)
+
+        def bintrayPlugin = new BintrayPlugin() {
+            @Override
+            void apply(Project p) {
+                super.apply(project)
+                PublishExtension ext = p.extensions.findByName('publish')
+                p.getTasks().findByName('bintrayUpload').doLast {
+                    if (!state.failure) {
+                        println "可添加依赖使用：\n\n\timplementation '${ext.groupId}:${ext.artifactId}:${ext.publishVersion}'\n\n"
+                    }
+                }
+            }
+        }
+
+        bintrayPlugin.apply(project)
+
+//        if (!extension.builderName.isEmpty()) {
+//            Task buildTask = target.getRootProject().childProjects.get(extension.builderName).getTasksByName("buildPackage", true)[0]
+//        }
     }
 
     private static void attachArtifacts(PublishExtension extension, Project project) {
@@ -28,7 +46,9 @@ class ReleasePlugin implements Plugin<Project> {
             project.android.libraryVariants.all { variant ->
                 String publicationName = variant.name
                 MavenPublication publication = createPublication(publicationName, project, extension)
-                new AndroidAttachments(publicationName, project, variant).attachTo(publication)
+                PropertyFinder propertyFinder = new PropertyFinder(project, extension)
+                new AndroidAttachments(publicationName, project, variant
+                        , !propertyFinder.AArPath.isEmpty()).attachTo(publication)
             }
         }
         project.plugins.withId('java') {

@@ -46,12 +46,16 @@ class ReleasePlugin implements Plugin<Project> {
         String groupId = extension.groupId
         String artifactId = extension.artifactId
         String version = propertyFinder.publishVersion
+        String aarPath = propertyFinder.AArPath
 
         PublicationContainer publicationContainer = project.extensions.getByType(PublishingExtension).publications
         return publicationContainer.create(publicationName, MavenPublication) { MavenPublication publication ->
             publication.groupId = groupId
             publication.artifactId = artifactId
             publication.version = version
+            if (!aarPath.isEmpty()) {
+                publication.artifacts = [aarPath]
+            }
         } as MavenPublication
     }
 }

@@ -42,6 +42,8 @@ class PublishExtension {
     boolean override = false
     boolean sign = false
 
+    String aarPath = ''
+
     String[] publications
 
     /**

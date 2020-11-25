@@ -23,6 +23,7 @@ class MavenPublicationAttachments {
 
     final void attachTo(MavenPublication publication) {
         allArtifactSources.each { publication.artifact it }
+        publication.artifacts.each { println("allArtifactSources: ${it}") }
         publication.from softwareComponent
     }
 

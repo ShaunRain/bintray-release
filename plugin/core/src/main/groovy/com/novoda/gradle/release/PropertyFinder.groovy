@@ -32,6 +32,10 @@ class PropertyFinder {
         getString(project, 'publishVersion', extension.publishVersion)
     }
 
+    def getAArPath() {
+        getString(project, 'aarPath', extension.aarPath)
+    }
+
     private String getString(Project project, String propertyName, String defaultValue) {
         project.hasProperty(propertyName) ? project.getProperty(propertyName) : defaultValue
     }

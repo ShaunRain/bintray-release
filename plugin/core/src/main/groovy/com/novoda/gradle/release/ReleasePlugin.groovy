@@ -5,6 +5,7 @@ import com.novoda.gradle.release.internal.AndroidAttachments
 import com.novoda.gradle.release.internal.JavaAttachments
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.api.publish.PublicationContainer
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
@@ -26,7 +27,9 @@ class ReleasePlugin implements Plugin<Project> {
             void apply(Project p) {
                 super.apply(project)
                 PublishExtension ext = p.extensions.findByName('publish')
-                p.getTasks().findByName('bintrayUpload').doLast {
+                def bintrayTask = p.getTasks().findByName('bintrayUpload')
+                def uploadOtherTask = p.task(dependsOn: bintrayTask, "upload", group: "publishing")
+                bintrayTask.doLast {
                     if (!state.failure) {
                         println "可添加依赖使用：\n\n\timplementation '${ext.groupId}:${ext.artifactId}:${ext.publishVersion}'\n\n"
                     }

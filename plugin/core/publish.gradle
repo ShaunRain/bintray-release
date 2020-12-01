@@ -35,13 +35,12 @@ apply plugin: 'com.novoda.bintray-release'
 //    }
 //}
 
-//./gradlew core:clean build
-//./gradlew core:bintrayUpload
+//./gradlew core:clean build bintrayUpload
 publish {
     desc = 'Tuya Android Bintray'
     groupId = 'com.tuya.smart'
     artifactId = 'tuyasmart-bintray_upload'
-    publishVersion = '0.0.7'
+    publishVersion = '0.0.8'
     bintrayUser = 'tuyasmartai'
     bintrayKey = '52a72bc89fcada12be3f14797588b4a9c0d9833a'
     repoName = 'sdk'

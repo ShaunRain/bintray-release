@@ -6,6 +6,7 @@ import com.novoda.gradle.release.internal.JavaAttachments
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.plugins.ExtensionContainer
 import org.gradle.api.publish.PublicationContainer
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
@@ -17,27 +18,47 @@ class ReleasePlugin implements Plugin<Project> {
         PublishExtension extension = project.extensions.create('publish', PublishExtension)
         project.afterEvaluate {
             extension.validate()
+            println "project.afterEvaluate"
+
+            Project builderProject = null
+            def type = null
+            if (!extension.builderName.isEmpty()) {
+                builderProject = project.getRootProject().childProjects.get(extension.builderName)
+                def tuyasdk = builderProject.extensions.getByName('tuyasdk')
+                type = tuyasdk.properties.get('type')
+                println "extensions.getByName: ${type}"
+                extension.artifactId += "_${type}"
+            }
+
             attachArtifacts(extension, project)
-            new BintrayConfiguration(extension).configure(project)
+            new BintrayConfiguration(extension, type).configure(project)
+
+            if (builderProject != null) {
+                Task buildTask = builderProject.getTasksByName("buildPackage", true)[0]
+                def uploadOtherTask = project.task(dependsOn: buildTask, "upload", group: "publishing")
+                uploadOtherTask.finalizedBy('bintrayUpload')
+            }
         }
         project.apply([plugin: 'maven-publish'])
 
         def bintrayPlugin = new BintrayPlugin() {
             @Override
             void apply(Project p) {
-                super.apply(project)
+                super.apply(p)
+                println "BintrayPlugin apply"
                 PublishExtension ext = p.extensions.findByName('publish')
                 def bintrayTask = p.getTasks().findByName('bintrayUpload')
-                def uploadOtherTask = p.task(dependsOn: bintrayTask, "upload", group: "publishing")
+//                def uploadOtherTask = p.task(dependsOn: bintrayTask, "upload", group: "publishing")
                 bintrayTask.doLast {
                     if (!state.failure) {
-                        println "可添加依赖使用：\n\n\timplementation '${ext.groupId}:${ext.artifactId}:${ext.publishVersion}'\n\n"
+                        println "可添加依赖使用：\n\n\timplementation '${ext.groupId}:${ext.artifactId}:${ext.version}'\n\n"
                     }
                 }
             }
         }
 
         bintrayPlugin.apply(project)
+        println "bintrayPlugin apply"
 
 //        if (!extension.builderName.isEmpty()) {
 //            Task buildTask = target.getRootProject().childProjects.get(extension.builderName).getTasksByName("buildPackage", true)[0]
@@ -70,6 +91,9 @@ class ReleasePlugin implements Plugin<Project> {
         String artifactId = extension.artifactId
         String version = propertyFinder.publishVersion
         String aarPath = propertyFinder.AArPath
+        String builderName = propertyFinder.builderName
+
+        println "builderName: ${builderName}"
 
         PublicationContainer publicationContainer = project.extensions.getByType(PublishingExtension).publications
         return publicationContainer.create(publicationName, MavenPublication) { MavenPublication publication ->

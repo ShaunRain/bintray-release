@@ -29,11 +29,15 @@ class PropertyFinder {
     }
 
     def getPublishVersion() {
-        getString(project, 'publishVersion', extension.publishVersion)
+        getString(project, 'publishVersion', extension.version)
     }
 
     def getAArPath() {
         getString(project, 'aarPath', extension.aarPath)
+    }
+
+    def getBuilderName() {
+        getString(project, 'builderName', extension.builderName)
     }
 
     private String getString(Project project, String propertyName, String defaultValue) {

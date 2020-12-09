@@ -5,9 +5,11 @@ import org.gradle.api.Project
 class BintrayConfiguration {
 
     PublishExtension extension
+    String publishVariant
 
-    BintrayConfiguration(PublishExtension extension) {
+    BintrayConfiguration(PublishExtension extension, String type) {
         this.extension = extension
+        this.publishVariant = type ? "${type}Release" : 'release'
     }
 
     void configure(Project project) {
@@ -23,7 +25,7 @@ class BintrayConfiguration {
             dryRun = propertyFinder.dryRun
             override = propertyFinder.override
 
-            publications = extension.publications ?: project.plugins.hasPlugin('com.android.library') ? ['release'] : [ 'maven' ]
+            publications = extension.publications ?: project.plugins.hasPlugin('com.android.library') ? [publishVariant] : ['maven']
 
             pkg {
                 repo = extension.repoName

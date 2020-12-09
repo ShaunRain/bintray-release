@@ -21,7 +21,9 @@ class PublishExtension {
     String groupId
     String artifactId
 
-    String publishVersion
+//    String publishVersion
+
+    String version
 
     Map<String, String> versionAttributes = [:]
 
@@ -65,8 +67,8 @@ class PublishExtension {
         if (artifactId == null) {
             extensionError += "Missing artifactId. "
         }
-        if (publishVersion == null) {
-            extensionError += "Missing publishVersion. "
+        if (version == null) {
+            extensionError += "Missing version. "
         }
         if (desc == null) {
             extensionError += "Missing desc. "

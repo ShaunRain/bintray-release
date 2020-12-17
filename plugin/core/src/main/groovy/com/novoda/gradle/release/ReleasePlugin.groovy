@@ -27,17 +27,22 @@ class ReleasePlugin implements Plugin<Project> {
                 def tuyasdk = builderProject.extensions.getByName('tuyasdk')
                 type = tuyasdk.properties.get('type')
                 println "extensions.getByName: ${type}"
-                extension.artifactId += "_${type}"
+                if (!extension.artifactId.endsWith(type)) {
+                    extension.artifactId += "_${type}"
+                }
             }
 
             attachArtifacts(extension, project)
             new BintrayConfiguration(extension, type).configure(project)
 
+            Task buildTask
             if (builderProject != null) {
-                Task buildTask = builderProject.getTasksByName("buildPackage", true)[0]
-                def uploadOtherTask = project.task(dependsOn: buildTask, "upload", group: "publishing")
-                uploadOtherTask.finalizedBy('bintrayUpload')
+                buildTask = builderProject.getTasksByName("buildPackage", true)[0]
+            } else {
+                buildTask = project.getTasksByName('build', true)[0]
             }
+            def uploadOtherTask = project.task(dependsOn: buildTask, "upload", group: "publishing")
+            uploadOtherTask.finalizedBy('bintrayUpload')
         }
         project.apply([plugin: 'maven-publish'])
 

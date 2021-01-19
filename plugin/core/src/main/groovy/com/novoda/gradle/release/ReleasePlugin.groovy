@@ -6,7 +6,6 @@ import com.novoda.gradle.release.internal.JavaAttachments
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
-import org.gradle.api.plugins.ExtensionContainer
 import org.gradle.api.publish.PublicationContainer
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
@@ -24,6 +23,9 @@ class ReleasePlugin implements Plugin<Project> {
             def type = null
             if (!extension.builderName.isEmpty()) {
                 builderProject = project.getRootProject().childProjects.get(extension.builderName)
+                println "extension.builderName: ${extension.builderName}"
+                builderProject.getTasks().forEach{task -> println("getTasks: ${task}")}
+
                 def tuyasdk = builderProject.extensions.getByName('tuyasdk')
                 type = tuyasdk.properties.get('type')
                 println "extensions.getByName: ${type}"
